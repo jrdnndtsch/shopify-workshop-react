@@ -1,0 +1,47 @@
+.sidebar 
+	:width 320px
+	// :padding 24px
+	:position fixed
+	:background white
+	ul 
+		:margin 0
+		:padding 0
+		:list-style none
+		:position absolute
+		:top 16px
+		:bottom 16px
+		:right 0
+		:left 0
+		:height 100vh
+		:overflow scroll
+
+
+		li 
+			:background #78D18B
+			:padding 18px
+			:margin 8px 24px
+		.sidebarItem.active 
+			:background darken(#78D18B, 15%)
+		a 
+			:display block
+			:text-decoration none
+			:color white
+			:font-size 14px
+			:line-height 18px
+			:text-transform uppercase
+			:letter-spacing 1.1px
+		span 
+			:display inline-block
+			:position relative
+			:color rgba(255,255,255,0.54)
+			:font-size 12px
+			:margin-bottom 8px
+			&:after
+				:content ''
+				:width 20px
+				:height 2px
+				:background rgba(255,255,255,0.54)
+				:position absolute
+				:top 50%
+				:transform translateY(-50%)
+				:right -24px
