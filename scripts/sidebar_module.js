@@ -4,19 +4,7 @@ export default class SidebarModule extends React.Component {
 	constructor(){
 		super();
 
-		this.state = {
-			active: false
-		}
-
 	}
-
-	componentDidMount(){
-		let slug = this.props.module.slug
-		// this.setState({
-		// 	active: this.props.active
-		// })
-	}
-	
 
 
 	render() {
