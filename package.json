@@ -1,8 +1,8 @@
 {
-  "name": "catch-of-the-day",
+  "name": "shopify-course",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -24,10 +24,7 @@
     "gulp-stylus": "2.1.0",
     "gulp-uglify": "1.4.2",
     "gulp-util": "3.0.7",
-    "history": "1.12.5",
     "install": "0.1.8",
-    "re-base": "1.2.1",
-    "react": "^0.14.0",
     "react-addons-css-transition-group": "0.14.0",
     "react-catalyst": "0.3.0",
     "react-dom": "0.14.0",
@@ -39,6 +36,12 @@
   },
   "dependencies": {
     "node-fetch": "^1.6.3",
-    "whatwg-fetch": "^1.0.0"
+    "whatwg-fetch": "^1.0.0",
+    "history": "4.2.0",
+    "re-base": "2.2.0",
+    "react": "15.3.2",
+    "react-addons-css-transition-group": "15.3.2",
+    "react-dom": "15.3.2",
+    "react-router": "4.0.0-alpha.3"
   }
 }

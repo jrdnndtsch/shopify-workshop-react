@@ -1,16 +1,21 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var ReactRouter = require('react-router');
+// var ReactRouter = require('react-router');
 var fetch = require('node-fetch');
-var Router = ReactRouter.Router;
-var Route = ReactRouter.Route;
-var Navigation = ReactRouter.Navigation;
-var History = ReactRouter.History
-var createBrowserHistory = require('history/lib/createBrowserHistory');
+// var Router = ReactRouter.Router;
+// var Route = ReactRouter.Route;
+// var Navigation = ReactRouter.Navigation;
+// var History = ReactRouter.History
+// var createBrowserHistory = require('history/lib/createBrowserHistory');
 var h = require('./helpers');
+
+import { BrowserRouter, Match, Miss, Link } from 'react-router';
+
+
 
 import SidebarModule from './sidebar_module';
 import LessonModule from './lesson_module';
+import Lesson from './lesson';
 
 
 
@@ -60,11 +65,11 @@ class App extends React.Component {
 					Promise.all(res)
 						.then(resolve)
 				})
-				.catch(reject);
+				.catch(console.log(reject));
 		})
 	}
 	
-	getModules() {
+	getModules(lessonId) {
 		// all initial calls made to API for setup
 		let fetchCalls = ['collections/course-modules/items', 'collections/sub-module/items'];
 
@@ -96,10 +101,16 @@ class App extends React.Component {
 				
 				// sort all course modules by order key
 				let courseModules = this.sortModules(mappedSidebarModules, 'order')
-				
-				// set the first course module to active
-				courseModules[0].active = true
-				let activeSidebarModule = courseModules[0].slug
+
+				// set the active sidebar module to the lessonId from the params defined by the route
+				let activeSidebarModule = ''
+				lessonId ? 	activeSidebarModule = lessonId : activeSidebarModule = courseModules[0].slug
+		
+
+				// set the activeSidebarModule course module to active
+				courseModules.forEach((module) => {
+					module.slug == activeSidebarModule ? module.active = true : module.active = false
+				})
 
 
 				//map data for all sub-modules 
@@ -134,7 +145,8 @@ class App extends React.Component {
 	
 
 	componentDidMount(){
-		this.getModules()
+		this.getModules(this.props.params.lessonId)
+		console.log(this.props.params.lessonId)
 
 	}
 
@@ -160,35 +172,58 @@ class App extends React.Component {
 
 	render() {
 		return (
+			<BrowserRouter>
 			<main className="flex-container">
 				<nav className="sidebar">
 					<ul>
 					{this.state.courseModules.map((module, i) => {
 						
 						return (
-							<SidebarModule module={module} active={module.active} key={i} handleClick={this.handleClick.bind(this, module.slug)} />
+							<Link to={module.slug} key={i} >
+							<SidebarModule module={module} active={module.active} key={i} handleClick={this.handleClick.bind(this, module.slug)}  params={{lessonId: module.slug}}/>
+							</Link>
 						)		
 					})}	
 					</ul>
 				</nav>
 				<div className="content">
-					{this.state.currentModule.map((module, i) => {
-						return (
-							<LessonModule theModule={module} key={i} />
-
-						)
-					})}
-
+					<Lesson currentModule={this.state.currentModule} lessonId={this.state.activeSidebarModule} />
 				</div>
 			</main>
+			</BrowserRouter>
 		)
 		
 	}
 }
 
+
+class NotFound extends React.Component {
+  render() {
+    return (
+      <h2>404</h2>
+    )
+  }
+}		
+
+
+const Root = () => {
+	return (
+		<BrowserRouter>
+			<div>
+				<Match exactly pattern="/" component={App} />
+				<Match exactly pattern="/:lessonId" component={App} />
+				<Miss component={NotFound} />
+			</div>
+		</BrowserRouter>
+	)
+}
 ReactDOM.render(
-	<App/>, 
-	document.getElementById('main'))
+	<Root/>,
+	 document.getElementById('main')
+)
+
+
+
 
 
 
