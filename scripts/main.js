@@ -16,6 +16,7 @@ import { BrowserRouter, Match, Miss, Link } from 'react-router';
 import SidebarModule from './sidebar_module';
 import LessonModule from './lesson_module';
 import Lesson from './lesson';
+import SearchModule from './search_module';
 
 
 
@@ -24,10 +25,12 @@ class App extends React.Component {
 	constructor() {
 		super();
 		this.state = {
-			courseModules: [],
+			sidebarModules: [],
 			currentModule: [], 
 			activeModule: '', 
-			allModules: []
+			allModules: [], 
+			searchTerm: '', 
+			searchSidebarModules: []
 		}
 		
 	}
@@ -100,15 +103,15 @@ class App extends React.Component {
 				})
 				
 				// sort all course modules by order key
-				let courseModules = this.sortModules(mappedSidebarModules, 'order')
+				let sidebarModules = this.sortModules(mappedSidebarModules, 'order')
 
 				// set the active sidebar module to the lessonId from the params defined by the route
 				let activeSidebarModule = ''
-				lessonId ? 	activeSidebarModule = lessonId : activeSidebarModule = courseModules[0].slug
+				lessonId ? 	activeSidebarModule = lessonId : activeSidebarModule = sidebarModules[0].slug
 		
 
 				// set the activeSidebarModule course module to active
-				courseModules.forEach((module) => {
+				sidebarModules.forEach((module) => {
 					module.slug == activeSidebarModule ? module.active = true : module.active = false
 				})
 
@@ -128,10 +131,11 @@ class App extends React.Component {
 				
 				// update state with active module, correspoding sub-modules, and all sidebar module and sub-module data
 				this.setState({
-					courseModules: courseModules,
+					sidebarModules: sidebarModules,
 					currentModule: currentModule, 
 					activeModule: activeSidebarModule, 
-					allModules: allModules
+					allModules: allModules,
+					searchSidebarModules: sidebarModules
 				})
 
 			})
@@ -155,7 +159,7 @@ class App extends React.Component {
 		let currentModule = this.filterAllModules(this.state.allModules, module)
 
 		// update sidebar modules so new one is active
-		let courseModules = this.state.courseModules.map((courseModule) => {
+		let sidebarModules = this.state.sidebarModules.map((courseModule) => {
 			courseModule.slug == module ? courseModule.active = true : courseModule.active = false
 			return courseModule
 		})
@@ -164,10 +168,41 @@ class App extends React.Component {
 		this.setState({
 			activeModule: module, 
 			currentModule: currentModule, 
-			courseModules: courseModules
+			sidebarModules: sidebarModules
+
 		})
 	}
 
+	handleSearch(e) {
+		this.setState({
+			searchTerm: e.target.value
+		})
+	}
+
+	performSearch() {
+		console.log(this.state.searchTerm)
+		let searchVal = this.state.searchTerm.toLowerCase()
+		let reg = new RegExp(searchVal, 'g')
+		console.log(reg)
+		let searchRes = [];
+		this.state.allModules.forEach((module) => {
+			let plainTxt = module.content.replace(/<\/?[^>]+(>|$)/g, "").toLowerCase()
+			let slug = module.module
+			if(plainTxt.match(reg)) {
+				searchRes.push(slug)
+			}
+		})
+		console.log(searchRes)
+		let searchedModules = this.state.sidebarModules.filter((module) => {
+			if(searchRes.includes(module.slug)){
+				return module
+			}
+		})
+		this.setState({
+			searchSidebarModules: searchedModules
+		})
+
+	}
 
 
 	render() {
@@ -175,12 +210,18 @@ class App extends React.Component {
 			<BrowserRouter>
 			<main className="flex-container">
 				<nav className="sidebar">
+					<div className="searchBar">
+						<label htmlFor="search">Search</label>
+						<input value={this.state.search} type="text" id="search" name="search" onChange={this.handleSearch.bind(this)}/>
+						<input type="submit" value="search" onClick={this.performSearch.bind(this)}/>
+					</div>
 					<ul>
-					{this.state.courseModules.map((module, i) => {
+
+					{this.state.searchSidebarModules.map((module, i) => {
 						
 						return (
 							<Link to={module.slug} key={i} >
-							<SidebarModule module={module} active={module.active} key={i} handleClick={this.handleClick.bind(this, module.slug)}  params={{lessonId: module.slug}}/>
+								<SidebarModule module={module} active={module.active} key={i} handleClick={this.handleClick.bind(this, module.slug)}  params={{lessonId: module.slug}}/>
 							</Link>
 						)		
 					})}	

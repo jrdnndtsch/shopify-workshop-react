@@ -49,12 +49,21 @@ code {
 		width: 320px;
 		position: fixed;
 		background: white; }
+		.sidebar .searchBar {
+				margin: 24px; }
+				.sidebar .searchBar label {
+						margin-right: 10px; }
+				.sidebar .searchBar input[type=submit] {
+						width: 100%;
+						margin-top: 12px; }
+		.sidebar a {
+				text-decoration: none; }
 		.sidebar ul {
 				margin: 0;
 				padding: 0;
 				list-style: none;
 				position: absolute;
-				top: 16px;
+				top: 100px;
 				bottom: 16px;
 				right: 0;
 				left: 0;
@@ -66,13 +75,13 @@ code {
 						margin: 8px 24px; }
 				.sidebar ul .sidebarItem.active {
 						background: #40bc5b; }
-						.sidebar ul .sidebarItem.active a {
+						.sidebar ul .sidebarItem.active p {
 								color: white; }
 						.sidebar ul .sidebarItem.active span {
 								color: rgba(255, 255, 255, 0.54); }
 								.sidebar ul .sidebarItem.active span:after {
 										background: rgba(255, 255, 255, 0.54); }
-				.sidebar ul a {
+				.sidebar ul p {
 						display: block;
 						text-decoration: none;
 						color: #40bc5b;

@@ -3,12 +3,21 @@
 	// :padding 24px
 	:position fixed
 	:background white
+	.searchBar 
+		:margin 24px
+		label
+			:margin-right 10px
+		input[type=submit]
+			:width 100%
+			:margin-top 12px
+	a 
+		:text-decoration none		
 	ul 
 		:margin 0
 		:padding 0
 		:list-style none
 		:position absolute
-		:top 16px
+		:top 100px
 		:bottom 16px
 		:right 0
 		:left 0
@@ -22,13 +31,13 @@
 			:margin 8px 24px
 		.sidebarItem.active 
 			:background darken(#78D18B, 15%)
-			a 
+			p 
 				:color white
 			span
 				:color rgba(255,255,255,0.54)
 				&:after 
 					:background rgba(255,255,255,0.54)
-		a 
+		p
 			:display block
 			:text-decoration none
 			:color darken(#78D18B, 15%)

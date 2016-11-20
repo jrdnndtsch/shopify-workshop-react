@@ -11,7 +11,7 @@ export default class SidebarModule extends React.Component {
 		return (
 			<li className={"sidebarItem " + (this.props.active ? 'active' : 'off')} onClick={this.props.handleClick}>
 				<span>{this.props.module.order}</span>
-				<a href="#">{this.props.module.title}</a>
+				<p>{this.props.module.title}</p>
 			</li>
 		)
 	}
