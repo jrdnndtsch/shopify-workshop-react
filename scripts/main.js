@@ -2,6 +2,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 // var ReactRouter = require('react-router');
 var fetch = require('node-fetch');
+var Fuse = require('fuse.js');
 // var Router = ReactRouter.Router;
 // var Route = ReactRouter.Route;
 // var Navigation = ReactRouter.Navigation;
@@ -11,12 +12,22 @@ var h = require('./helpers');
 
 import { BrowserRouter, Match, Miss, Link } from 'react-router';
 
-
-
 import SidebarModule from './sidebar_module';
 import LessonModule from './lesson_module';
 import Lesson from './lesson';
+import Search from './search';
 import SearchModule from './search_module';
+
+
+const elasticsearch = require('elasticsearch');
+
+const client = new elasticsearch.Client({
+  host: 'http://localhost:9200',
+  log: 'debug'
+});
+
+
+
 
 
 
@@ -29,11 +40,16 @@ class App extends React.Component {
 			currentModule: [], 
 			activeModule: '', 
 			allModules: [], 
-			searchTerm: '', 
-			searchSidebarModules: []
+			searchTerm: '',
+			searchResults: [], 
+			searchSidebarModules: [], 
+			isSearch: false
 		}
 		
 	}
+
+	//=============== HELPER METHODS ===============
+
 	//sort modules based on provided order value
 	sortModules(modules, key) {
 		modules.sort((a, b) => {
@@ -56,6 +72,10 @@ class App extends React.Component {
 			return currentModule = []
 		}
 		
+	}
+
+	stripHTML(content) {
+		return content.replace(/<\/?[^>]+(>|$)/g, "")
 	}
 
 	getPromiseData(promiseArray) {
@@ -150,11 +170,11 @@ class App extends React.Component {
 
 	componentDidMount(){
 		this.getModules(this.props.params.lessonId)
-		console.log(this.props.params.lessonId)
 
 	}
 
 	handleClick(module) {
+		console.log('handleClick', this, module)
 		// filter all sub-modules and return only those belonging to the module passed in
 		let currentModule = this.filterAllModules(this.state.allModules, module)
 
@@ -163,12 +183,13 @@ class App extends React.Component {
 			courseModule.slug == module ? courseModule.active = true : courseModule.active = false
 			return courseModule
 		})
-	
+		
 		// update state
 		this.setState({
 			activeModule: module, 
 			currentModule: currentModule, 
-			sidebarModules: sidebarModules
+			sidebarModules: sidebarModules,
+			isSearch: false
 
 		})
 	}
@@ -180,30 +201,54 @@ class App extends React.Component {
 	}
 
 	performSearch() {
-		console.log(this.state.searchTerm)
-		let searchVal = this.state.searchTerm.toLowerCase()
-		let reg = new RegExp(searchVal, 'g')
-		console.log(reg)
-		let searchRes = [];
-		this.state.allModules.forEach((module) => {
-			let plainTxt = module.content.replace(/<\/?[^>]+(>|$)/g, "").toLowerCase()
-			let slug = module.module
-			if(plainTxt.match(reg)) {
-				searchRes.push(slug)
+		let searchVal = this.state.searchTerm
+		let stripedModules = this.state.allModules.map(module => {
+			return {
+				module: module.module, 
+				title: module.title, 
+				content: this.stripHTML(module.content)
 			}
 		})
-		console.log(searchRes)
-		let searchedModules = this.state.sidebarModules.filter((module) => {
-			if(searchRes.includes(module.slug)){
-				return module
+	
+
+		let fuseOptions = {
+			shouldSort: true, 
+  			threshold: 0.6,
+  			distance: 5000,
+			keys: [
+				'title', 
+				'content'
+			], 
+			include: [
+				'score', 
+				'matches' 
+			]
+
+		}
+
+		let fuse = new Fuse(stripedModules, fuseOptions);
+		let searchResults = fuse.search(searchVal)
+		searchResults = searchResults.map(res => {
+			return {
+				module: res.item.module, 
+				title: res.item.title
 			}
 		})
+
+		console.log(searchResults)
+
 		this.setState({
-			searchSidebarModules: searchedModules
+			isSearch: true, 
+			searchResults: searchResults
 		})
+
 
 	}
 
+	
+	//TODO - on click of search results change is search to false and render that module
+	//TODO - preview of content for searhc res
+	//TODO - limit search res to things below 0.6
 
 	render() {
 		return (
@@ -228,7 +273,16 @@ class App extends React.Component {
 					</ul>
 				</nav>
 				<div className="content">
-					<Lesson currentModule={this.state.currentModule} lessonId={this.state.activeSidebarModule} />
+					{
+						if(this.state.isSearch) {
+							 <Search searchModules={this.state.searchResults} handleClick={this.handleClick.bind(this)} /> 
+							
+							
+						} else {
+							 <Lesson currentModule={this.state.currentModule} lessonId={this.state.activeSidebarModule} /> 
+							
+						} 
+					}
 				</div>
 			</main>
 			</BrowserRouter>
@@ -262,7 +316,6 @@ ReactDOM.render(
 	<Root/>,
 	 document.getElementById('main')
 )
-
 
 
 
