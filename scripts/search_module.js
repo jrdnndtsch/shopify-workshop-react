@@ -15,7 +15,7 @@ export default class SearchModule extends React.Component {
 		return (
 			<div>
 				<Link to={this.props.theModule.module}>
-					<div>
+					<div onClick={this.props.clickHandler}>
 						<h3>{this.props.theModule.title}</h3>
 						<p>{this.props.theModule.module}</p>
 					</div>

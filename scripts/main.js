@@ -19,16 +19,15 @@ import Search from './search';
 import SearchModule from './search_module';
 
 
-const elasticsearch = require('elasticsearch');
 
-const client = new elasticsearch.Client({
-  host: 'http://localhost:9200',
-  log: 'debug'
-});
-
-
-
-
+const Test = (props) => {
+	let search= props.isSearch
+	if (search) {
+		return <Search searchModules={props.searchResults} handleClick={props.handleClick} /> 
+	}else {
+		return <Lesson currentModule={props.currentModule} lessonId={props.activeSidebarModule} /> 
+	}
+}
 
 
 
@@ -174,7 +173,7 @@ class App extends React.Component {
 	}
 
 	handleClick(module) {
-		console.log('handleClick', this, module)
+		console.log('handleClick', this)
 		// filter all sub-modules and return only those belonging to the module passed in
 		let currentModule = this.filterAllModules(this.state.allModules, module)
 
@@ -245,6 +244,8 @@ class App extends React.Component {
 
 	}
 
+
+
 	
 	//TODO - on click of search results change is search to false and render that module
 	//TODO - preview of content for searhc res
@@ -273,16 +274,7 @@ class App extends React.Component {
 					</ul>
 				</nav>
 				<div className="content">
-					{
-						if(this.state.isSearch) {
-							 <Search searchModules={this.state.searchResults} handleClick={this.handleClick.bind(this)} /> 
-							
-							
-						} else {
-							 <Lesson currentModule={this.state.currentModule} lessonId={this.state.activeSidebarModule} /> 
-							
-						} 
-					}
+					<Test isSearch={this.state.isSearch} searchResults={this.state.searchResults} handleClick={this.handleClick.bind(this)} currentModule={this.state.currentModule} activeSidebarModule={this.state.activeModule} />
 				</div>
 			</main>
 			</BrowserRouter>
@@ -299,6 +291,8 @@ class NotFound extends React.Component {
     )
   }
 }		
+
+
 
 
 const Root = () => {
