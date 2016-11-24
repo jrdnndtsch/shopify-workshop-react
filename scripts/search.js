@@ -18,21 +18,41 @@ export default class Search extends React.Component {
 		return content.replace(/<\/?[^>]+(>|$)/g, "")
 	}
 
+	splitString(theString) {
+		return theString.split(" ")
+	}
+
+	chunkArray(chunkSize, arr) {
+        return [].concat.apply([],
+            arr.map((elem,i) => {
+                return i%chunkSize ? [] : [arr.slice(i,i+chunkSize)];
+            })
+        );
+	}
+	
+
 	createLessonModules(moduleData){
 		let allModules = moduleData.map(module => {
-			return {
-				title: module.title,
-				content: this.stripHTML(module.content.subModuleContent.html), 
-				module: module.content.belongsToModule.id
-			}
+			let newString = this.stripHTML(module.content.subModuleContent.html)
+			let splitContent = this.splitString(newString)
+			splitContent = this.chunkArray(50, splitContent)
+			splitContent = splitContent.map(item => {
+				return {
+					title: module.title,
+					content: item.join(' '),
+					module: module.content.belongsToModule.id
+				}
+			})
+			return splitContent
+		
 		})
-
-		return allModules
+		let mergedMods = [].concat.apply([], allModules)
+		console.log(mergedMods, 'merged')
+		return mergedMods
 	}
 
 
 	performSearch(query) {
-
 		let fuseOptions = {
 			shouldSort: true, 
   			threshold: 0.6,
@@ -50,7 +70,7 @@ export default class Search extends React.Component {
 
 		let fuse = new Fuse(this.state.allModules, fuseOptions);
 		let searchResults = fuse.search(query)
-
+		console.log(searchResults, 'raw search res')
 		let processedRes = this.processSearchRes(searchResults)
 
 		this.setState({
@@ -67,7 +87,8 @@ export default class Search extends React.Component {
 				title: res.item.title, 
 				content: res.item.content, 
 				module: res.item.module, 
-				score: res.score
+				score: res.score, 
+				matches: res.matches
 			}
 		})
 		searchRes = searchRes.filter(res => {
@@ -78,6 +99,11 @@ export default class Search extends React.Component {
 		return searchRes
 	}
 
+	createSearchContentSnippet(searchRes) {
+		searchRes.map(res => {
+
+		})
+	}
 	componentDidMount(){
 		elemeno.setAPIKey('0743950e-a610-11e6-ae8a-6b76f37c54fe');
 		let allSubModules = () => {
@@ -102,9 +128,11 @@ export default class Search extends React.Component {
 	componentWillReceiveProps(newProps) {
 		this.performSearch(newProps.params.query)
 	}
+
 	renderSearchModules(module, i) {
 		return <SearchModule theModule={module} key={i} />
 	}
+
 	render() {
 		return (
 			<div className="search-module">

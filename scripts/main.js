@@ -92,8 +92,6 @@ class App extends React.Component {
 
 		sidebarModules()
 			.then(res => {
-				console.log(res, 'promise res', this.props.params)
-				
 
 				//create sidebar components
 				let sidebarModules = this.createSidebar(res.data)
@@ -117,16 +115,10 @@ class App extends React.Component {
 
 	componentDidMount(){
 		this.getModules()
-		// console.log(this.props.params, 'the thing that I am ')
-		
-
-		// console.log(activeSidebarModule, 'active')
-		// this.doTheThing()
 
 	}
 
 	componentWillReceiveProps(newProps) {
-		console.log(newProps, 'from main')
 		let activeSidebarModule = this.setActiveSidebar(newProps.params.lessonId, this.state.sidebarModules)
 		this.setState({
 			activeSidebarModule: activeSidebarModule
@@ -142,50 +134,50 @@ class App extends React.Component {
 		})
 	}
 
-	performSearch() {
-		let searchVal = this.state.searchTerm
-		let stripedModules = this.state.allModules.map(module => {
-			return {
-				module: module.module, 
-				title: module.title, 
-				content: this.stripHTML(module.content)
-			}
-		})
+	// performSearch() {
+	// 	let searchVal = this.state.searchTerm
+	// 	let stripedModules = this.state.allModules.map(module => {
+	// 		return {
+	// 			module: module.module, 
+	// 			title: module.title, 
+	// 			content: this.stripHTML(module.content)
+	// 		}
+	// 	})
 	
 
-		let fuseOptions = {
-			shouldSort: true, 
-  			threshold: 0.6,
-  			distance: 5000,
-			keys: [
-				'title', 
-				'content'
-			], 
-			include: [
-				'score', 
-				'matches' 
-			]
+	// 	let fuseOptions = {
+	// 		shouldSort: true, 
+ //  			threshold: 0.6,
+ //  			distance: 5000,
+	// 		keys: [
+	// 			'title', 
+	// 			'content'
+	// 		], 
+	// 		include: [
+	// 			'score', 
+	// 			'matches' 
+	// 		]
 
-		}
+	// 	}
 
-		let fuse = new Fuse(stripedModules, fuseOptions);
-		let searchResults = fuse.search(searchVal)
-		searchResults = searchResults.map(res => {
-			return {
-				module: res.item.module, 
-				title: res.item.title
-			}
-		})
+	// 	let fuse = new Fuse(stripedModules, fuseOptions);
+	// 	let searchResults = fuse.search(searchVal)
+	// 	searchResults = searchResults.map(res => {
+	// 		return {
+	// 			module: res.item.module, 
+	// 			title: res.item.title
+	// 		}
+	// 	})
 
-		console.log(searchResults)
+	// 	console.log(searchResults)
 
-		this.setState({
-			isSearch: true, 
-			searchResults: searchResults
-		})
+	// 	this.setState({
+	// 		isSearch: true, 
+	// 		searchResults: searchResults
+	// 	})
 
 
-	}
+	// }
 
 	
 	//TODO - on click of search results change is search to false and render that module
@@ -226,16 +218,12 @@ const Home = () => {
 	)
 }
 
-const test = () => {
-	console.log('test route')
-}
-
 const Root = () => {
 	return (
 		<Router history={hashHistory}>
 			<Route path="/" component={App}>
 				<IndexRoute component={Home} />
-				<Route path="lesson/:lessonId" component={Lesson} onChange={test()}/>
+				<Route path="lesson/:lessonId" component={Lesson} />
 				<Route path="search/:query" component={Search} />
 			</Route>
 		</Router>

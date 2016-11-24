@@ -32,7 +32,6 @@ export default class Lesson extends React.Component {
 		}
 
 		allModules().then(res => {
-			console.log(res, 'filtered modules')
 			let mappedModules = this.createLessonModules(res.data)
 			let theCourseModules = this.sortModules(mappedModules, 'order')
 			this.setState({
