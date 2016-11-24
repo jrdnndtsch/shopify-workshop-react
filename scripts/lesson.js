@@ -81,7 +81,6 @@ export default class Lesson extends React.Component {
 		
 		return (
 			<div className="full-module">
-				<p>{this.props.params.lessonId}</p>
 				{this.state.lessonModules.map((module, i) =>
 					this.renderLessonModules(module, i)
 				)}

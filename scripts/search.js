@@ -51,10 +51,31 @@ export default class Search extends React.Component {
 		let fuse = new Fuse(this.state.allModules, fuseOptions);
 		let searchResults = fuse.search(query)
 
-		console.log(searchResults, 'seach res')
+		let processedRes = this.processSearchRes(searchResults)
+
+		this.setState({
+			searchRes: processedRes
+		})
 
 
 
+	}
+
+	processSearchRes(results) {
+		let searchRes = results.map(res => {
+			if(res.score < 0.5) {
+				return {
+					title: res.item.title, 
+					content: res.item.content, 
+					module: res.item.module, 
+					score: res.score
+				}
+			}else {
+				return
+			}
+		})
+
+		return searchRes
 	}
 
 	componentDidMount(){
@@ -82,16 +103,16 @@ export default class Search extends React.Component {
 		this.performSearch(newProps.params.query)
 	}
 	renderSearchModules(module, i) {
-		return <SearchModule theModule={module} key={i} clickHandler={this.props.handleClick} />
+		return <SearchModule theModule={module} key={i} />
 	}
 	render() {
 		return (
 			<div className="search-module">
-				search
+				{this.state.searchRes.map((module, i) =>
+					this.renderSearchModules(module, i)
+				)}
 			</div>
 		)
 	}
 }
-				// {this.props.searchModules.map((module, i) =>
-				// 	this.renderSearchModules(module, i)
-				// )}
+				
