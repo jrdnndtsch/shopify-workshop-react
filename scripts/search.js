@@ -108,9 +108,11 @@ export default class Search extends React.Component {
 	render() {
 		return (
 			<div className="search-module">
-				{this.state.searchRes.map((module, i) =>
-					this.renderSearchModules(module, i)
-				)}
+				<div className="wrapper">
+					{this.state.searchRes.map((module, i) =>
+						this.renderSearchModules(module, i)
+					)}
+				</div>
 			</div>
 		)
 	}

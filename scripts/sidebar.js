@@ -29,11 +29,10 @@ export default class Sidebar extends React.Component {
 	render() {
 		return(
 			<nav className="sidebar">
-				<form className="searchBar">
-					<label htmlFor="search">Search</label>
-					<input type="text" id="search" name="search" onChange={this.handleSearch.bind(this)} />
+				<div className="search-box">
+					<input type="text" id="search" name="search" placeholder="what are you looking for" onChange={this.handleSearch.bind(this)} />
 					<Link to={`search/${this.state.searchTerm}`}>Search</Link>
-				</form>
+				</div>
 				<ul>
 					{this.props.sidebarModules.map((module, i) => {
 						

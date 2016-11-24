@@ -3,13 +3,19 @@
 	// :padding 24px
 	:position fixed
 	:background white
-	.searchBar 
+	.search-box
 		:margin 24px
-		label
-			:margin-right 10px
-		input[type=submit]
+		input 
 			:width 100%
-			:margin-top 12px
+			:padding 10px 12px
+		a 
+			:display block
+			:padding 10px
+			:text-align center
+			:color white
+			:background darken(#78D18B, 15%)
+			:margin 12px 0	
+		
 	a 
 		:text-decoration none		
 	ul 
@@ -17,11 +23,11 @@
 		:padding 0
 		:list-style none
 		:position absolute
-		:top 100px
-		:bottom 16px
+		:top 142px
+		:bottom 100px
 		:right 0
 		:left 0
-		:height 100vh
+		:height calc(100vh - 150px)
 		:overflow scroll
 
 
