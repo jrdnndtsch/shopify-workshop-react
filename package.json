@@ -29,19 +29,20 @@
     "react-catalyst": "0.3.0",
     "react-dom": "0.14.0",
     "react-mixin": "3.0.0",
-    "react-router": "1.0.0-rc3",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.1.0",
     "watchify": "3.4.0"
   },
   "dependencies": {
-    "node-fetch": "^1.6.3",
-    "whatwg-fetch": "^1.0.0",
+    "elemeno": "^0.1.1",
+    "fuse.js": "^2.5.0",
     "history": "4.2.0",
+    "node-fetch": "^1.6.3",
     "re-base": "2.2.0",
     "react": "15.3.2",
     "react-addons-css-transition-group": "15.3.2",
     "react-dom": "15.3.2",
-    "react-router": "4.0.0-alpha.3"
+    "react-router": "^3.0.0",
+    "whatwg-fetch": "^1.0.0"
   }
 }

@@ -1,17 +1,10 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-// var ReactRouter = require('react-router');
-var fetch = require('node-fetch');
 var Fuse = require('fuse.js');
-// var Router = ReactRouter.Router;
-// var Route = ReactRouter.Route;
-// var Navigation = ReactRouter.Navigation;
-// var History = ReactRouter.History
-// var createBrowserHistory = require('history/lib/createBrowserHistory');
-var h = require('./helpers');
+var elemeno = require('elemeno');
 
-import { BrowserRouter, Match, Miss, Link } from 'react-router';
-
+import { Router, Route, Link, Navigation, hashHistory, IndexRoute } from 'react-router';
+import Sidebar from './sidebar';
 import SidebarModule from './sidebar_module';
 import LessonModule from './lesson_module';
 import Lesson from './lesson';
@@ -20,14 +13,6 @@ import SearchModule from './search_module';
 
 
 
-const Test = (props) => {
-	let search= props.isSearch
-	if (search) {
-		return <Search searchModules={props.searchResults} handleClick={props.handleClick} /> 
-	}else {
-		return <Lesson currentModule={props.currentModule} lessonId={props.activeSidebarModule} /> 
-	}
-}
 
 
 
@@ -36,16 +21,12 @@ class App extends React.Component {
 		super();
 		this.state = {
 			sidebarModules: [],
-			currentModule: [], 
-			activeModule: '', 
-			allModules: [], 
-			searchTerm: '',
-			searchResults: [], 
-			searchSidebarModules: [], 
-			isSearch: false
+			activeSidebarModule: '', 
+			searchTerm: ''
 		}
 		
 	}
+
 
 	//=============== HELPER METHODS ===============
 
@@ -57,106 +38,73 @@ class App extends React.Component {
 		return modules
 	}
 
-	//filter sub-modules based on the module that is selected in the sidebar
-	filterAllModules(modules, activeModule){
-		let currentModule = modules.filter(module => {
-			if(module.module == activeModule){
-				return module
+
+	
+
+	//=============== CREATE METHODS ===============
+
+	createSidebar(res) {
+		let mappedSidebarModules = res.map(module => {
+			return {
+				title: module.title, 
+				order: module.content.moduleOrder.number, 
+				slug: module.slug,
+				active: false, 
+				id: module.id
 			}
 		})
-
-		if(currentModule){
-			return currentModule = this.sortModules(currentModule, 'order')
-		} else {
-			return currentModule = []
-		}
 		
+		// sort all course modules by order key
+		let sidebarModules = this.sortModules(mappedSidebarModules, 'order')
+
+		return sidebarModules
 	}
 
-	stripHTML(content) {
-		return content.replace(/<\/?[^>]+(>|$)/g, "")
-	}
+	setActiveSidebar(lessonId, sidebarModules) {
+		// set the active sidebar module to the lessonId from the params defined by the route
+		let activeSidebarModule = ''
+		lessonId ? 	activeSidebarModule = lessonId : activeSidebarModule = sidebarModules[0].id
+		
 
-	getPromiseData(promiseArray) {
-		return new Promise((resolve, reject) => {
-			Promise.all(promiseArray)
-				.then(res => {
-					return res.map(module => module.json() )
-				})
-				.then(res => {
-					Promise.all(res)
-						.then(resolve)
-				})
-				.catch(console.log(reject));
+		// set the activeSidebarModule course module to active
+		sidebarModules.forEach((module) => {
+			module.id == activeSidebarModule ? module.active = true : module.active = false
 		})
+
+		return activeSidebarModule
 	}
+
+	//=============== GET DATA METHODS ===============
 	
 	getModules(lessonId) {
-		// all initial calls made to API for setup
-		let fetchCalls = ['collections/course-modules/items', 'collections/sub-module/items'];
-
-		// init for fetch call
-		let fetchOptions = {
-			method: 'GET',
-			headers: {
-			  'Authorization': '0743950e-a610-11e6-ae8a-6b76f37c54fe'
-			}
+		
+		elemeno.setAPIKey('0743950e-a610-11e6-ae8a-6b76f37c54fe');
+		
+		let sidebarModules = () => {
+			return new Promise((resolve, reject) => {
+				elemeno.getCollectionItems('course-modules', (err, result) => {
+					if(result) {
+						resolve(result)
+					}
+				})
+			})
 		}
 
-		// all the fetch call
-		let moduleCalls = fetchCalls.map(slug => {
-			return fetch(`http://api.elemeno.io/v1/${slug}`, fetchOptions)
-		});
-
-		// get data from array of promises
-		
-		this.getPromiseData(moduleCalls)
-			.then(result => {
-				let mappedSidebarModules = result[0].data.map(module => {
-					return {
-						title: module.title, 
-						order: module.content.moduleOrder.number, 
-						slug: module.slug,
-						active: false
-					}
-				})
+		sidebarModules()
+			.then(res => {
+				console.log(res, 'promise res', this.props.params)
 				
-				// sort all course modules by order key
-				let sidebarModules = this.sortModules(mappedSidebarModules, 'order')
 
-				// set the active sidebar module to the lessonId from the params defined by the route
-				let activeSidebarModule = ''
-				lessonId ? 	activeSidebarModule = lessonId : activeSidebarModule = sidebarModules[0].slug
-		
+				//create sidebar components
+				let sidebarModules = this.createSidebar(res.data)
 
-				// set the activeSidebarModule course module to active
-				sidebarModules.forEach((module) => {
-					module.slug == activeSidebarModule ? module.active = true : module.active = false
-				})
+				//set the active component to active
+				let activeSidebarModule = this.setActiveSidebar(this.props.params.lessonId, sidebarModules)
 
-
-				//map data for all sub-modules 
-				let allModules = result[1].data.map(module => {
-					return {
-						title: module.title,
-						content: module.content.subModuleContent.html, 
-						order: module.content.submoduleOrder.number, 
-						module: module.content.belongsToModule.slug
-					}
-				})
-
-				//filter all sub-module data and only return sub-modules that are part of active module
-				let currentModule = this.filterAllModules(allModules, activeSidebarModule)
-				
-				// update state with active module, correspoding sub-modules, and all sidebar module and sub-module data
 				this.setState({
 					sidebarModules: sidebarModules,
-					currentModule: currentModule, 
-					activeModule: activeSidebarModule, 
-					allModules: allModules,
-					searchSidebarModules: sidebarModules
+					activeSidebarModule: activeSidebarModule
 				})
-
 			})
 	
 	}
@@ -168,30 +116,25 @@ class App extends React.Component {
 	
 
 	componentDidMount(){
-		this.getModules(this.props.params.lessonId)
-
-	}
-
-	handleClick(module) {
-		console.log('handleClick', this)
-		// filter all sub-modules and return only those belonging to the module passed in
-		let currentModule = this.filterAllModules(this.state.allModules, module)
-
-		// update sidebar modules so new one is active
-		let sidebarModules = this.state.sidebarModules.map((courseModule) => {
-			courseModule.slug == module ? courseModule.active = true : courseModule.active = false
-			return courseModule
-		})
+		this.getModules()
+		// console.log(this.props.params, 'the thing that I am ')
 		
-		// update state
-		this.setState({
-			activeModule: module, 
-			currentModule: currentModule, 
-			sidebarModules: sidebarModules,
-			isSearch: false
 
+		// console.log(activeSidebarModule, 'active')
+		// this.doTheThing()
+
+	}
+
+	componentWillReceiveProps(newProps) {
+		console.log(newProps, 'from main')
+		let activeSidebarModule = this.setActiveSidebar(newProps.params.lessonId, this.state.sidebarModules)
+		this.setState({
+			activeSidebarModule: activeSidebarModule
 		})
 	}
+
+	//=============== EVENT METHODS ===============
+
 
 	handleSearch(e) {
 		this.setState({
@@ -244,40 +187,23 @@ class App extends React.Component {
 
 	}
 
-
-
 	
 	//TODO - on click of search results change is search to false and render that module
 	//TODO - preview of content for searhc res
 	//TODO - limit search res to things below 0.6
+	//TODO is there a better way that cloning and setting the app state to global state when rendering children
 
 	render() {
 		return (
-			<BrowserRouter>
+		
 			<main className="flex-container">
-				<nav className="sidebar">
-					<div className="searchBar">
-						<label htmlFor="search">Search</label>
-						<input value={this.state.search} type="text" id="search" name="search" onChange={this.handleSearch.bind(this)}/>
-						<input type="submit" value="search" onClick={this.performSearch.bind(this)}/>
-					</div>
-					<ul>
-
-					{this.state.searchSidebarModules.map((module, i) => {
-						
-						return (
-							<Link to={module.slug} key={i} >
-								<SidebarModule module={module} active={module.active} key={i} handleClick={this.handleClick.bind(this, module.slug)}  params={{lessonId: module.slug}}/>
-							</Link>
-						)		
-					})}	
-					</ul>
-				</nav>
+				<Sidebar sidebarModules={this.state.sidebarModules} searchTerm={this.state.searchTerm} />
 				<div className="content">
-					<Test isSearch={this.state.isSearch} searchResults={this.state.searchResults} handleClick={this.handleClick.bind(this)} currentModule={this.state.currentModule} activeSidebarModule={this.state.activeModule} />
+					{this.props.children}
+					
 				</div>
 			</main>
-			</BrowserRouter>
+			
 		)
 		
 	}
@@ -292,25 +218,33 @@ class NotFound extends React.Component {
   }
 }		
 
+const Home = () => {
+	return (
+		<div>
+			<h1>Hi</h1>
+		</div>
+	)
+}
 
-
+const test = () => {
+	console.log('test route')
+}
 
 const Root = () => {
 	return (
-		<BrowserRouter>
-			<div>
-				<Match exactly pattern="/" component={App} />
-				<Match exactly pattern="/:lessonId" component={App} />
-				<Miss component={NotFound} />
-			</div>
-		</BrowserRouter>
+		<Router history={hashHistory}>
+			<Route path="/" component={App}>
+				<IndexRoute component={Home} />
+				<Route path="lesson/:lessonId" component={Lesson} onChange={test()}/>
+				<Route path="search" component={Search} />
+			</Route>
+		</Router>
 	)
 }
 ReactDOM.render(
 	<Root/>,
 	 document.getElementById('main')
 )
-
 
 
 
