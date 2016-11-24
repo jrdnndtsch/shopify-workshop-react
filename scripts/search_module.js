@@ -17,7 +17,7 @@ export default class SearchModule extends React.Component {
 				<Link to={`lesson/${this.props.theModule.module}`}>
 					<div>
 						<h3>{this.props.theModule.title}</h3>
-						<p>{this.props.theModule.content}</p>
+						{this.props.theModule.matchedKey.includes('content') ? <p>{this.props.theModule.content}</p> : null}
 					</div>
 				</Link>	
 			</div>
