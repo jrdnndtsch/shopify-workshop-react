@@ -63,18 +63,18 @@ export default class Search extends React.Component {
 
 	processSearchRes(results) {
 		let searchRes = results.map(res => {
-			if(res.score < 0.5) {
-				return {
-					title: res.item.title, 
-					content: res.item.content, 
-					module: res.item.module, 
-					score: res.score
-				}
-			}else {
-				return
+			return {
+				title: res.item.title, 
+				content: res.item.content, 
+				module: res.item.module, 
+				score: res.score
 			}
 		})
-
+		searchRes = searchRes.filter(res => {
+			if(res.score < 0.5) {
+				return res
+			}
+		})
 		return searchRes
 	}
 
