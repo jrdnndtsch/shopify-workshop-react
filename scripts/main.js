@@ -63,7 +63,7 @@ class App extends React.Component {
 	setActiveSidebar(lessonId, sidebarModules) {
 		// set the active sidebar module to the lessonId from the params defined by the route
 		let activeSidebarModule = ''
-		lessonId ? 	activeSidebarModule = lessonId : activeSidebarModule = sidebarModules[0].id
+		lessonId ? 	activeSidebarModule = lessonId : activeSidebarModule = ''
 		
 
 		// set the activeSidebarModule course module to active
@@ -236,7 +236,7 @@ const Root = () => {
 			<Route path="/" component={App}>
 				<IndexRoute component={Home} />
 				<Route path="lesson/:lessonId" component={Lesson} onChange={test()}/>
-				<Route path="search" component={Search} />
+				<Route path="search/:query" component={Search} />
 			</Route>
 		</Router>
 	)

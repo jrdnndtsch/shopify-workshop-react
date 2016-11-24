@@ -69,14 +69,11 @@ export default class Lesson extends React.Component {
 	}
 
 	componentDidMount() {
-		console.log(this.props.params.lessonId)	
 		this.getLessonModules(this.props.params.lessonId)
 	}
 
 	componentWillReceiveProps(newProps) {
-		console.log(newProps.params.lessonId, 'new Props')
 		this.getLessonModules(newProps.params.lessonId)
-		// this.setLessonModules(this.props.globalsState)
 
 	}
 
