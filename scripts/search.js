@@ -81,7 +81,7 @@ export default class Search extends React.Component {
 	}
 	removeDuplicatesBy(keyFn, array) {
 	  var mySet = new Set();
-	  return array.filter(function(x) {
+	  return array.filter((x) => {
 	    var key = keyFn(x), isNew = !mySet.has(key);
 	    if (isNew) mySet.add(key);
 	    return isNew;
