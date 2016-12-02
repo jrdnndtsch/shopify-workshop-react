@@ -46,6 +46,17 @@ code {
 		display: block;
 		font-size: 14px; }
 
+.search-module {
+		background: white;
+		margin: 20px;
+		padding: 20px; }
+		.search-module:hover p {
+				color: rgba(0, 0, 0, 0.7); }
+		.search-module a {
+				text-decoration: none; }
+		.search-module p {
+				color: black; }
+
 .sidebar {
 		width: 320px;
 		position: fixed;

@@ -13,7 +13,7 @@ export default class SearchModule extends React.Component {
 	}
 	render() {
 		return (
-			<div>
+			<div className="search-module">
 				<Link to={`lesson/${this.props.theModule.module}`}>
 					<div>
 						<h3>{this.props.theModule.title}</h3>

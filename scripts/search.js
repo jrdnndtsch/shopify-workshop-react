@@ -70,7 +70,6 @@ export default class Search extends React.Component {
 
 		let fuse = new Fuse(this.state.allModules, fuseOptions);
 		let searchResults = fuse.search(query)
-		console.log(searchResults, 'raw search res')
 		let processedRes = this.processSearchRes(searchResults)
 
 		this.setState({
@@ -79,6 +78,14 @@ export default class Search extends React.Component {
 
 
 
+	}
+	removeDuplicatesBy(keyFn, array) {
+	  var mySet = new Set();
+	  return array.filter(function(x) {
+	    var key = keyFn(x), isNew = !mySet.has(key);
+	    if (isNew) mySet.add(key);
+	    return isNew;
+	  });
 	}
 
 	processSearchRes(results) {
@@ -95,8 +102,9 @@ export default class Search extends React.Component {
 				matchedKey: keys
 			}
 		})
-		searchRes = searchRes.filter(res => {
-			if(res.score < 0.45) {
+		searchRes = this.removeDuplicatesBy(x => x.title, searchRes);
+		searchRes = searchRes.filter((res, i) => {
+			if(res.score < 0.45 && i < 5) {
 				return res
 			}
 		})
@@ -139,7 +147,7 @@ export default class Search extends React.Component {
 
 	render() {
 		return (
-			<div className="search-module">
+			<div className="search-container">
 				<div className="wrapper">
 					{this.state.searchRes.map((module, i) =>
 						this.renderSearchModules(module, i)
