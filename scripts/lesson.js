@@ -3,61 +3,34 @@ var elemeno = require('elemeno');
 
 import LessonModule from './lesson_module';
 
+import Markdown from 'react-markdown';
+
+
+// import createClient directly
+import {createClient} from 'contentful'
+const client = createClient({
+  // This is the space ID. A space is like a project folder in Contentful terms
+  space: 'muc0p5m5ftil',
+  // This is the access token for this space. Normally you get both ID and the token in the Contentful web app
+  accessToken: '4d254b045c3568964632f1ef43a8708d502b62365df520070aec561ef23cc833'
+})
+
 export default class Lesson extends React.Component {
-	constructor(){
-		super();
+	constructor(props){
+		super(props);
 
 		this.state = {
-			lessonModules: []
+			lesson: {}
 		} 
 
 	}
 
+	getLesson(lesson_id){
+	  client.getEntry(lesson_id)
+	  .then((lesson) => {
+	   	this.setState({lesson: lesson.fields})
+	  })
 
-	getLessonModules(theModule) {
-		elemeno.setAPIKey('0743950e-a610-11e6-ae8a-6b76f37c54fe');
-		let options = {
-			filters: {
-				'belongsToModule' : theModule
-			}
-		}
-		let allModules = () => {
-			return new Promise((resolve, reject) => {
-				elemeno.getCollectionItems('sub-module', options, (err, response) => {
-					if(response){
-						resolve(response)
-					}
-				})
-			})
-		}
-
-		allModules().then(res => {
-			let mappedModules = this.createLessonModules(res.data)
-			let theCourseModules = this.sortModules(mappedModules, 'order')
-			this.setState({
-				lessonModules: theCourseModules
-			})
-		})
-	}
-
-	createLessonModules(moduleData){
-		let allModules = moduleData.map(module => {
-			return {
-				title: module.title,
-				content: module.content.subModuleContent.html, 
-				order: module.content.submoduleOrder.number, 
-				module: module.content.belongsToModule.slug
-			}
-		})
-
-		return allModules
-	}
-
-	sortModules(modules, key) {
-		modules.sort((a, b) => {
-			return a[key] - b[key]
-		})
-		return modules
 	}
 
 	
@@ -68,21 +41,29 @@ export default class Lesson extends React.Component {
 	}
 
 	componentDidMount() {
-		this.getLessonModules(this.props.params.lessonId)
+		console.log(this.props.params.lessonId)
+		this.getLesson(this.props.params.lessonId)
+		
 	}
 
 	componentWillReceiveProps(newProps) {
-		this.getLessonModules(newProps.params.lessonId)
+		// this.getLessonModules(newProps.params.lessonId)
+		this.getLesson(newProps.params.lessonId)
 
 	}
 
 	render() {
-		
+		const lesson = this.state.lesson
 		return (
 			<div className="full-module">
-				{this.state.lessonModules.map((module, i) =>
-					this.renderLessonModules(module, i)
-				)}
+				<div className="wrapper lesson-module">
+					<h2>{lesson.title}</h2>
+					<Markdown 
+					    escapeHtml={true}
+					    source={lesson.content} 
+					/>
+					
+				</div>
 			</div>
 		)
 	}

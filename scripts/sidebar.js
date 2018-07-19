@@ -29,16 +29,12 @@ export default class Sidebar extends React.Component {
 	render() {
 		return(
 			<nav className="sidebar">
-				<div className="search-box">
-					<input type="text" id="search" name="search" placeholder="what are you looking for" onChange={this.handleSearch.bind(this)} />
-					<Link to={`search/${this.state.searchTerm}`}>Search</Link>
-				</div>
+				<h1>{this.props.workshop}</h1>
 				<ul>
-					{this.props.sidebarModules.map((module, i) => {
-						
+					{this.props.lessons.map((lesson, i) => {
 						return (
-							<Link to={`lesson/${module.id}`} key={i} >
-								<SidebarModule module={module} active={module.active} key={i} />
+							<Link to={`lesson/${lesson.lesson_id}`} key={i} >
+								<SidebarModule module={lesson} active={this.props.activeLesson === lesson.lesson_id} key={lesson.lesson_id} />
 							</Link>
 						)		
 					})}	
@@ -47,3 +43,8 @@ export default class Sidebar extends React.Component {
 		)
 	}
 }
+
+	// <div className="search-box">
+				// 	<input type="text" id="search" name="search" placeholder="what are you looking for" onChange={this.handleSearch.bind(this)} />
+				// 	<Link to={`search/${this.state.searchTerm}`}>Search</Link>
+				// </div>
